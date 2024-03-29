@@ -124,7 +124,7 @@ resource "aws_internet_gateway" "this" {
 # --------------------------------------------------------------------
 
 resource "aws_eip" "nat" {
-  count = var.create_private_subnets && var.create_nat_gateway ? 1 : 0
+  count = var.create_public_subnets && var.create_nat_gateway ? 1 : 0
 
   domain = "vpc"
 
