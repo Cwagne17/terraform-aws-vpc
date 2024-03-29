@@ -86,6 +86,8 @@ locals {
   # Gets a subset of the availability zones based on the number
   # of availability zones requested.
   availability_zones = slice(data.aws_availability_zones.current.names, 0, local.num_availability_zones)
+
+  create_nat_gateway = var.create_nat_gateway && var.create_public_subnets && var.create_private_subnets
 }
 
 
@@ -124,7 +126,7 @@ resource "aws_internet_gateway" "this" {
 # --------------------------------------------------------------------
 
 resource "aws_eip" "nat" {
-  count = var.create_public_subnets && var.create_nat_gateway ? 1 : 0
+  count = local.create_nat_gateway ? 1 : 0
 
   domain = "vpc"
 
@@ -143,7 +145,7 @@ resource "aws_eip" "nat" {
 # The Nat Gateway is deployed in a public subnet for a private subnet to use
 # the public subnets must be created first.
 resource "aws_nat_gateway" "this" {
-  count = var.create_public_subnets && var.create_nat_gateway ? 1 : 0
+  count = local.create_nat_gateway ? 1 : 0
 
   allocation_id = aws_eip.nat[0].id
 
@@ -330,7 +332,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route" "private_nat" {
-  count = var.create_private_subnets && var.create_nat_gateway ? 1 : 0
+  count = var.create_private_subnets && local.create_nat_gateway ? 1 : 0
 
   route_table_id = aws_route_table.private[0].id
 
@@ -343,7 +345,7 @@ resource "aws_route" "private_nat" {
 }
 
 resource "aws_route_table_association" "private" {
-  count = var.create_private_subnets ? local.num_private_subnets : 0
+  count = var.create_private_subnets && local.create_nat_gateway ? local.num_private_subnets : 0
 
   route_table_id = aws_route_table.private[0].id
   subnet_id      = aws_subnet.private[count.index].id
