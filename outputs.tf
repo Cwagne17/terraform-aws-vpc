@@ -58,7 +58,7 @@ output "public_subnet_ids" {
 
 output "public_subnet_route_table_id" {
   description = "The ID of the public subnet route table."
-  value       = aws_route_table.public[0].id
+  value       = var.create_public_subnets ? aws_route_table.public[0].id : null
 }
 
 output "public_subnets" {
@@ -76,7 +76,7 @@ output "public_subnets" {
 
 output "public_subnets_network_acl_id" {
   description = "The ID of the public subnet network ACL."
-  value       = aws_network_acl.public[0].id
+  value       = var.create_public_subnets ? aws_network_acl.public[0].id : null
 }
 
 output "vpc_cidr_block" {

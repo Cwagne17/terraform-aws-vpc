@@ -140,8 +140,10 @@ resource "aws_eip" "nat" {
   ]
 }
 
+# The Nat Gateway is deployed in a public subnet for a private subnet to use
+# the public subnets must be created first.
 resource "aws_nat_gateway" "this" {
-  count = var.create_private_subnets && var.create_nat_gateway ? 1 : 0
+  count = var.create_public_subnets && var.create_nat_gateway ? 1 : 0
 
   allocation_id = aws_eip.nat[0].id
 
